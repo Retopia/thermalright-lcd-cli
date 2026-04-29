@@ -1,0 +1,5 @@
+#!/bin/bash
+VENV_DIR="@user_home@/.local/share/thermalright-lcd-control/venv"
+PYTHONPATH="@user_home@/.local/share/thermalright-lcd-control/:$PYTHONPATH"
+export PYTHONPATH
+exec "$VENV_DIR/bin/python" -m thermalright_lcd_control.cli --config @user_home@/.config/thermalright-lcd-control/config

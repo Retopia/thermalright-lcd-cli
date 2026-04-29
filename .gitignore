@@ -1,0 +1,80 @@
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.pyre/
+.tox/
+.nox/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+
+# Virtual environments and local env files
+.venv/
+venv/
+env/
+ENV/
+.env
+.env.*
+!.env.example
+
+# Build and packaging output
+build/
+dist/
+*.egg-info/
+*.egg
+pip-wheel-metadata/
+wheelhouse/
+releases/
+*.tar.gz
+*.zip
+*.whl
+
+# uv / Python tooling
+.python-version
+
+# Runtime logs and generated local state
+*.log
+*.pid
+*.tmp
+*.temp
+*.swp
+*.swo
+resources/config/device_info.yaml
+device_info.yaml
+
+# Local media/output experiments
+captures/
+screenshots/
+recordings/
+test-output/
+tmp/
+
+# Editors and IDEs
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+
+# OS files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux package-manager artifacts
+*.deb
+*.rpm
+*.AppImage
+
+# Node artifacts if docs or tooling are added later
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
