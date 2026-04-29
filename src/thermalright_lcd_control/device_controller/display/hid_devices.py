@@ -94,14 +94,19 @@ class DisplayDevice04168001(HidDevice):
         super().__init__(self.VID, self.PID, 512, self.W, self.H, config_dir)
 
     def get_header(self) -> bytes:
-        return struct.pack(
-            '<BBHHH',
-            0x69,
-            0x88,
+        prefix = bytes([0xDA, 0xDB, 0xDC, 0xDD])
+        body = struct.pack(
+            '<6HIH',
+            2,
+            1,
             self.W,
             self.H,
+            2,
+            0,
+            self.W * self.H * 2,
             0,
         )
+        return prefix + body
 
     @staticmethod
     def info() -> dict:
