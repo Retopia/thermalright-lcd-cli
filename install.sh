@@ -165,18 +165,29 @@ install_application() {
     cp README.md "$APP_DIR/"
     cp LICENSE "$APP_DIR/"
 
-    # Find the wheel file
-    WHEEL_FILE=$(ls *.whl 2>/dev/null | head -n 1)
+    # Release archives include a wheel and requirements.txt. Git clones do not, so
+    # build them locally when installing directly from source.
+    WHEEL_FILE=$(ls *.whl dist/*.whl 2>/dev/null | head -n 1)
     if [ -z "$WHEEL_FILE" ]; then
-        log_error "Wheel file not found. Please run create_package.sh first."
+        log_warn "Wheel file not found; building from source with uv"
+        uv build
+        WHEEL_FILE=$(ls dist/*.whl 2>/dev/null | head -n 1)
+    fi
+
+    if [ -z "$WHEEL_FILE" ]; then
+        log_error "Wheel build failed; no .whl file found"
         exit 1
     fi
 
-    log_info "Found wheel: $WHEEL_FILE"
+    log_info "Using wheel: $WHEEL_FILE"
 
-    # Check for requirements.txt with locked versions
     if [ ! -f "requirements.txt" ]; then
-        log_error "requirements.txt not found. Package is incomplete."
+        log_warn "requirements.txt not found; exporting dependencies from uv.lock"
+        uv export --frozen --no-hashes > requirements.txt
+    fi
+
+    if [ ! -f "requirements.txt" ]; then
+        log_error "requirements.txt not found and could not be generated"
         exit 1
     fi
 
