@@ -165,17 +165,20 @@ install_application() {
     cp README.md "$APP_DIR/"
     cp LICENSE "$APP_DIR/"
 
-    # Release archives include a wheel and requirements.txt. Git clones do not, so
-    # build them locally when installing directly from source.
-    WHEEL_FILE=$(ls *.whl dist/*.whl 2>/dev/null | head -n 1)
-    if [ -z "$WHEEL_FILE" ]; then
-        log_warn "Wheel file not found; building from source with uv"
+    # Release archives include a wheel and requirements.txt. Source checkouts
+    # should always rebuild so reinstalling after git pull does not reuse a
+    # stale wheel from a previous install.
+    if [ -d "src" ] && [ -f "pyproject.toml" ]; then
+        log_info "Source checkout detected; rebuilding wheel from current source"
+        rm -rf dist
         uv build
         WHEEL_FILE=$(ls dist/*.whl 2>/dev/null | head -n 1)
+    else
+        WHEEL_FILE=$(ls *.whl dist/*.whl 2>/dev/null | head -n 1)
     fi
 
     if [ -z "$WHEEL_FILE" ]; then
-        log_error "Wheel build failed; no .whl file found"
+        log_error "Wheel file not found and no source checkout is available to build one"
         exit 1
     fi
 
