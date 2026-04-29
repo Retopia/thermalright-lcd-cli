@@ -91,7 +91,9 @@ class DisplayDevice04168001(HidDevice):
     VID, PID = 0x0416, 0x8001
 
     def __init__(self, config_dir: str):
-        super().__init__(self.VID, self.PID, 512, self.W, self.H, config_dir)
+        # This device exposes a 64-byte HID interrupt OUT endpoint. One byte is
+        # the report ID, leaving 63 bytes for payload per write.
+        super().__init__(self.VID, self.PID, 63, self.W, self.H, config_dir)
 
     def get_header(self) -> bytes:
         prefix = bytes([0xDA, 0xDB, 0xDC, 0xDD])
