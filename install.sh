@@ -228,17 +228,32 @@ install_application() {
         exit 1
     fi
 
-    # Copy CLI launcher script
+    # Copy CLI launcher script. Release archives place it under usr/bin;
+    # source checkouts keep it under scripts/usr/bin.
+    CLI_LAUNCHER=""
     if [ -f "usr/bin/$APP_NAME" ]; then
-        cp "usr/bin/$APP_NAME" "$BIN_DIR/"
+        CLI_LAUNCHER="usr/bin/$APP_NAME"
+    elif [ -f "scripts/usr/bin/$APP_NAME" ]; then
+        CLI_LAUNCHER="scripts/usr/bin/$APP_NAME"
+    fi
+
+    if [ -n "$CLI_LAUNCHER" ]; then
+        cp "$CLI_LAUNCHER" "$BIN_DIR/$APP_NAME"
         sed -i "s|@user_home@|$USER_HOME|g" "$BIN_DIR/$APP_NAME"
         chmod 755 "$BIN_DIR/$APP_NAME"
         log_info "CLI launcher script installed"
     fi
 
-    # Copy service launcher script
+    # Copy service launcher script.
+    SERVICE_LAUNCHER=""
     if [ -f "usr/bin/$APP_NAME-service" ]; then
-        cp "usr/bin/$APP_NAME-service" "$BIN_DIR/"
+        SERVICE_LAUNCHER="usr/bin/$APP_NAME-service"
+    elif [ -f "scripts/usr/bin/$APP_NAME-service" ]; then
+        SERVICE_LAUNCHER="scripts/usr/bin/$APP_NAME-service"
+    fi
+
+    if [ -n "$SERVICE_LAUNCHER" ]; then
+        cp "$SERVICE_LAUNCHER" "$BIN_DIR/$APP_NAME-service"
 
         # Update paths in the launcher script
         sed -i "s|@user_home@|$USER_HOME|g" "$BIN_DIR/$APP_NAME-service"
@@ -278,9 +293,17 @@ configure_selinux() {
 install_system_service() {
     log_info "Installing system service..."
 
-    # Copy and adapt the service file from resources
+    # Copy and adapt the service file. Release archives place it at package
+    # root; source checkouts keep it under scripts/.
+    SERVICE_FILE=""
     if [ -f "$APP_NAME.service" ]; then
-        cp "$APP_NAME.service" "$SYSTEMD_SYSTEM_DIR/"
+        SERVICE_FILE="$APP_NAME.service"
+    elif [ -f "scripts/$APP_NAME.service" ]; then
+        SERVICE_FILE="scripts/$APP_NAME.service"
+    fi
+
+    if [ -n "$SERVICE_FILE" ]; then
+        cp "$SERVICE_FILE" "$SYSTEMD_SYSTEM_DIR/$APP_NAME.service"
 
         # Update service file for user installation paths but keep root execution
         sed -i "s|@user_home@|$USER_HOME|g" "$SYSTEMD_SYSTEM_DIR/$APP_NAME.service"
@@ -296,7 +319,7 @@ install_system_service() {
 
         log_info "System service installed and enabled"
     else
-        log_error "Service file not found in $APP_NAME.service"
+        log_error "Service file not found. Expected $APP_NAME.service or scripts/$APP_NAME.service"
         exit 1
     fi
 }
